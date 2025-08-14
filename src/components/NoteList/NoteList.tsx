@@ -10,37 +10,33 @@ interface NoteListProps {
 
 const NoteList: React.FC<NoteListProps> = ({ notes, loading, onDelete }) => {
   if (loading) {
-    return <div className={css.loading}>Loading notes...</div>;
+    return <div>Loading notes...</div>;
   }
 
   if (!notes.length) {
-    return <div className={css.empty}>No notes found</div>;
+    return <div>No notes found</div>;
   }
 
   return (
-    <div className={css.grid}>
+    <ul className={css.list}>
       {notes.map((note) => (
-        <div key={note.id} className={css.card}>
-          <div className={css.header}>
-            <h3>{note.title}</h3>
-            {note.category && (
-              <span className={`${css.tag} ${css[note.category.toLowerCase()]}`}>
-                {note.category}
-              </span>
+        <li key={note.id} className={css.listItem}>
+          <h3 className={css.title}>{note.title}</h3>
+          <p className={css.content}>{note.content}</p>
+          <div className={css.footer}>
+            {note.category && <span className={css.tag}>{note.category}</span>}
+            {onDelete && (
+              <button
+                className={css.button}
+                onClick={() => onDelete(note.id)}
+              >
+                Delete
+              </button>
             )}
           </div>
-          <p className={css.content}>{note.content}</p>
-          {onDelete && (
-            <button
-              className={css.delete}
-              onClick={() => onDelete(note.id)}
-            >
-              Delete
-            </button>
-          )}
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 };
 
