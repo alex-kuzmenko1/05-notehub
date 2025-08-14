@@ -26,6 +26,7 @@ const App: React.FC = () => {
     data: notesData = { notes: [], totalPages: 0 },
     isLoading,
     isError,
+    isFetching,
   } = useQuery<NotesResponse>({
     queryKey: ["notes", currentPage, debouncedSearchQuery],
     queryFn: () =>
@@ -34,6 +35,7 @@ const App: React.FC = () => {
         perPage,
         search: debouncedSearchQuery,
       }),
+    keepPreviousData: true,
   });
 
   const handleSearchChange = (query: string) => {
@@ -52,7 +54,7 @@ const App: React.FC = () => {
   const { notes, totalPages } = notesData;
   const shouldShowPagination = totalPages > 1;
 
-  if (isLoading) {
+  if (isLoading && !notesData.notes.length) {
     return <div className={css.loading}>Loading...</div>;
   }
 
@@ -69,10 +71,11 @@ const App: React.FC = () => {
 
         {shouldShowPagination && (
           <Pagination
-  pageCount={totalPages}
-  currentPage={currentPage - 1}
-  onPageChange={({ selected }) => setCurrentPage(selected + 1)} 
-/>
+            pageCount={totalPages}
+            currentPage={currentPage - 1}
+            onPageChange={({ selected }) => setCurrentPage(selected + 1)} 
+            disabled={isFetching}
+          />
         )}
 
         <button className={css.button} onClick={handleOpenModal}>
@@ -80,7 +83,7 @@ const App: React.FC = () => {
         </button>
       </header>
 
-      <NoteList notes={notes} />
+      <NoteList notes={notes} loading={isFetching} />
 
       {isModalOpen && (
         <Modal onClose={handleCloseModal}>
