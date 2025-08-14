@@ -9,13 +9,11 @@ import Pagination from '../Pagination/Pagination';
 import Modal from '../Modal/Modal';
 import NoteForm from '../NoteForm/NoteForm';
 import css from './App.module.css';
-
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const queryClient = useQueryClient();
   const perPage = 12;
 
@@ -48,12 +46,12 @@ const App: React.FC = () => {
   });
 
   const handlePageChange = (selectedPage: number) => {
-    setCurrentPage(selectedPage + 1); // react-paginate uses 0-based indexing
+    setCurrentPage(selectedPage + 1); 
   };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1); 
   };
 
   const handleCreateNote = (payload: CreateNotePayload) => {
@@ -96,7 +94,7 @@ const App: React.FC = () => {
         {shouldShowPagination && (
           <Pagination
             pageCount={totalPages}
-            currentPage={currentPage - 1} // react-paginate uses 0-based indexing
+            currentPage={currentPage - 1} 
             onPageChange={handlePageChange}
           />
         )}
@@ -131,3 +129,5 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+
