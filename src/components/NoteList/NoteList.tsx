@@ -32,3 +32,5 @@ const NoteList: React.FC<NoteListProps> = ({ notes, onDelete, isDeleting }) => {
 };
 
 export default NoteList;
+
+
