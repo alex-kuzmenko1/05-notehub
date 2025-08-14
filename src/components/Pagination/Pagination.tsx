@@ -5,21 +5,21 @@ import css from './Pagination.module.css';
 interface PaginationProps {
   pageCount: number;
   currentPage: number;
-  onPageChange: (selectedPage: number) => void;
+  onPageChange: (selectedPage: { selected: number }) => void; 
 }
 
-const Pagination: React.FC<PaginationProps> = ({ pageCount, currentPage, onPageChange }) => {
-  const handlePageClick = (event: { selected: number }) => {
-    onPageChange(event.selected);
-  };
-
+const Pagination: React.FC<PaginationProps> = ({ 
+  pageCount, 
+  currentPage, 
+  onPageChange 
+}) => {
   return (
     <ReactPaginate
       pageCount={pageCount}
       forcePage={currentPage}
       pageRangeDisplayed={5}
       marginPagesDisplayed={2}
-      onPageChange={handlePageClick}
+      onPageChange={onPageChange} 
       containerClassName={css.pagination}
       pageClassName={css.pageItem}
       pageLinkClassName={css.pageLink}

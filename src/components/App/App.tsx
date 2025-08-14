@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query"; 
 import { useDebounce } from "use-debounce";
 import { fetchNotes } from "../../services/noteService";
 import type { Note } from "../../types/note";
@@ -20,7 +20,6 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const queryClient = useQueryClient();
   const perPage = 12;
 
   const {
@@ -37,10 +36,6 @@ const App: React.FC = () => {
       }),
   });
 
-  const handlePageChange = ({ selected }: { selected: number }) => {
-    setCurrentPage(selected + 1);
-  };
-
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
     setCurrentPage(1);
@@ -55,7 +50,6 @@ const App: React.FC = () => {
   };
 
   const { notes, totalPages } = notesData;
-  const hasNotes = notes.length > 0;
   const shouldShowPagination = totalPages > 1;
 
   if (isLoading) {
@@ -75,10 +69,10 @@ const App: React.FC = () => {
 
         {shouldShowPagination && (
           <Pagination
-            pageCount={totalPages}
-            currentPage={currentPage - 1}
-            onPageChange={(selected) => setCurrentPage(selected + 1)}
-          />
+  pageCount={totalPages}
+  currentPage={currentPage - 1}
+  onPageChange={({ selected }) => setCurrentPage(selected + 1)} 
+/>
         )}
 
         <button className={css.button} onClick={handleOpenModal}>
