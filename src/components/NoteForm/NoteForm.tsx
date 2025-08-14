@@ -1,14 +1,14 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { CreateNotePayload } from '../../types/note';
 import type { NoteTag } from '../../types/note';
+import { createNote } from '../../services/noteService'; 
 import css from './NoteForm.module.css';
 
 interface NoteFormProps {
-  onSubmit: (payload: CreateNotePayload) => void;
   onCancel: () => void;
-  isSubmitting: boolean;
 }
 
 const validationSchema = Yup.object({
@@ -16,8 +16,7 @@ const validationSchema = Yup.object({
     .min(3, 'Title must be at least 3 characters')
     .max(50, 'Title must be at most 50 characters')
     .required('Title is required'),
-  content: Yup.string()
-    .max(500, 'Content must be at most 500 characters'),
+  content: Yup.string().max(500, 'Content must be at most 500 characters'),
   tag: Yup.string()
     .oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'], 'Invalid tag')
     .required('Tag is required'),
@@ -29,14 +28,23 @@ const initialValues: CreateNotePayload = {
   tag: 'Todo' as NoteTag,
 };
 
-const NoteForm: React.FC<NoteFormProps> = ({ onSubmit, onCancel, isSubmitting }) => {
+const NoteForm: React.FC<NoteFormProps> = ({ onCancel }) => {
+  const queryClient = useQueryClient();
+  
+  const { mutate: submitNote, isPending: isSubmitting } = useMutation({
+    mutationFn: createNote, 
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      onCancel();
+    },
+  });
+
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={(values, { setSubmitting }) => {
-        onSubmit(values);
-        setSubmitting(false);
+      onSubmit={(values) => {
+        submitNote(values);
       }}
     >
       {({ isValid, dirty }) => (
