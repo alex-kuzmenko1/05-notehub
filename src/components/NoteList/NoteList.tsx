@@ -1,20 +1,20 @@
 import React from "react";
-import type { Note } from "../../types/note";
 import css from "./NoteList.module.css";
+import type { Note } from "../../types/note";
 
 interface NoteListProps {
   notes: Note[];
-  loading?: boolean;
-  onDelete?: (id: string) => void;
+  loading: boolean;
+  onDelete: (id: string) => void;
 }
 
-const NoteList: React.FC<NoteListProps> = ({ notes, loading, onDelete }) => {
+export const NoteList: React.FC<NoteListProps> = ({ notes, loading, onDelete }) => {
   if (loading) {
-    return <div>Loading notes...</div>;
+    return <p className={css.loading}>Loading...</p>;
   }
 
   if (!notes.length) {
-    return <div>No notes found</div>;
+    return <p className={css.empty}>No notes</p>;
   }
 
   return (
@@ -23,21 +23,18 @@ const NoteList: React.FC<NoteListProps> = ({ notes, loading, onDelete }) => {
         <li key={note.id} className={css.listItem}>
           <h3 className={css.title}>{note.title}</h3>
           <p className={css.content}>{note.content}</p>
+
           <div className={css.footer}>
-            {note.category && <span className={css.tag}>{note.category}</span>}
-            {onDelete && (
-              <button
-                className={css.button}
-                onClick={() => onDelete(note.id)}
-              >
-                Delete
-              </button>
-            )}
+            <span className={css.tag}>{note.category}</span>
+            <button
+              className={css.deleteButton}
+              onClick={() => onDelete(note.id)}
+            >
+              Delete
+            </button>
           </div>
         </li>
       ))}
     </ul>
   );
 };
-
-export default NoteList;

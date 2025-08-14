@@ -6,7 +6,7 @@ interface PaginationProps {
   pageCount: number;
   currentPage: number;
   onPageChange: (selectedPage: { selected: number }) => void; 
-  disabled?: boolean; // ✅ добавили
+  disabled?: boolean; 
 }
 
 const Pagination: React.FC<PaginationProps> = ({ 

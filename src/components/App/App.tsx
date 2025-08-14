@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useQuery, keepPreviousData } from "@tanstack/react-query"; 
+import { useQuery, keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
-import { fetchNotes } from "../../services/noteService";
+import { fetchNotes, deleteNote } from "../../services/noteService";
 import type { Note } from "../../types/note";
-import NoteList from "../NoteList/NoteList";
+import {NoteList} from "../NoteList/NoteList";
 import SearchBox from "../SearchBox/SearchBox";
 import Pagination from "../Pagination/Pagination";
 import Modal from "../Modal/Modal";
@@ -16,6 +16,7 @@ interface NotesResponse {
 }
 
 const App: React.FC = () => {
+  const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
@@ -35,7 +36,7 @@ const App: React.FC = () => {
         perPage,
         search: debouncedSearchQuery,
       }),
-    placeholderData: keepPreviousData, 
+    placeholderData: keepPreviousData,
   });
 
   const handleSearchChange = (query: string) => {
@@ -43,12 +44,16 @@ const App: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleDeleteNote = async (id: string) => {
+    try {
+      await deleteNote(id);
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+    } catch (err) {
+      console.error("Error deleting note", err);
+    }
   };
 
   const { notes, totalPages } = notesData;
@@ -73,7 +78,7 @@ const App: React.FC = () => {
           <Pagination
             pageCount={totalPages}
             currentPage={currentPage - 1}
-            onPageChange={({ selected }) => setCurrentPage(selected + 1)} 
+            onPageChange={({ selected }) => setCurrentPage(selected + 1)}
             disabled={isFetching}
           />
         )}
@@ -83,7 +88,11 @@ const App: React.FC = () => {
         </button>
       </header>
 
-      <NoteList notes={notes} loading={isFetching} />
+      <NoteList
+        notes={notes}
+        loading={isFetching}
+        onDelete={handleDeleteNote} 
+      />
 
       {isModalOpen && (
         <Modal onClose={handleCloseModal}>
