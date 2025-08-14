@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query"; 
+import { useQuery, keepPreviousData } from "@tanstack/react-query"; 
 import { useDebounce } from "use-debounce";
 import { fetchNotes } from "../../services/noteService";
 import type { Note } from "../../types/note";
@@ -35,7 +35,7 @@ const App: React.FC = () => {
         perPage,
         search: debouncedSearchQuery,
       }),
-    keepPreviousData: true,
+    placeholderData: keepPreviousData, 
   });
 
   const handleSearchChange = (query: string) => {

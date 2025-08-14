@@ -6,12 +6,14 @@ interface PaginationProps {
   pageCount: number;
   currentPage: number;
   onPageChange: (selectedPage: { selected: number }) => void; 
+  disabled?: boolean; // ✅ добавили
 }
 
 const Pagination: React.FC<PaginationProps> = ({ 
   pageCount, 
   currentPage, 
-  onPageChange 
+  onPageChange,
+  disabled = false 
 }) => {
   return (
     <ReactPaginate
@@ -19,8 +21,8 @@ const Pagination: React.FC<PaginationProps> = ({
       forcePage={currentPage}
       pageRangeDisplayed={5}
       marginPagesDisplayed={2}
-      onPageChange={onPageChange} 
-      containerClassName={css.pagination}
+      onPageChange={disabled ? () => {} : onPageChange} 
+      containerClassName={`${css.pagination} ${disabled ? css.disabled : ''}`} 
       pageClassName={css.pageItem}
       pageLinkClassName={css.pageLink}
       previousClassName={css.pageItem}
