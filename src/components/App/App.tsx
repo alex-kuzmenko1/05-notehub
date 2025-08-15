@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useQuery, keepPreviousData, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
-import { fetchNotes, deleteNote } from "../../services/noteService";
+import { fetchNotes } from "../../services/noteService";
 import type { Note } from "../../types/note";
-import {NoteList} from "../NoteList/NoteList";
+import { NoteList } from "../NoteList/NoteList";
 import SearchBox from "../SearchBox/SearchBox";
 import Pagination from "../Pagination/Pagination";
 import Modal from "../Modal/Modal";
@@ -16,27 +16,16 @@ interface NotesResponse {
 }
 
 const App: React.FC = () => {
-  const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const perPage = 12;
 
-  const {
-    data: notesData = { notes: [], totalPages: 0 },
-    isLoading,
-    isError,
-    isFetching,
-  } = useQuery<NotesResponse>({
+  const { data: notesData = { notes: [], totalPages: 0 }, isLoading, isError, isFetching } = useQuery<NotesResponse, Error>({
     queryKey: ["notes", currentPage, debouncedSearchQuery],
     queryFn: () =>
-      fetchNotes({
-        page: currentPage,
-        perPage,
-        search: debouncedSearchQuery,
-      }),
-    placeholderData: keepPreviousData,
+      fetchNotes({ page: currentPage, perPage, search: debouncedSearchQuery }),
   });
 
   const handleSearchChange = (query: string) => {
@@ -47,26 +36,15 @@ const App: React.FC = () => {
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
-  const handleDeleteNote = async (id: string) => {
-    try {
-      await deleteNote(id);
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-    } catch (err) {
-      console.error("Error deleting note", err);
-    }
-  };
-
   const { notes, totalPages } = notesData;
   const shouldShowPagination = totalPages > 1;
 
-  if (isLoading && !notesData.notes.length) {
+  if (isLoading && !notes.length) {
     return <div className={css.loading}>Loading...</div>;
   }
 
   if (isError) {
-    return (
-      <div className={css.error}>Error loading notes. Please try again.</div>
-    );
+    return <div className={css.error}>Error loading notes. Please try again.</div>;
   }
 
   return (
@@ -88,11 +66,7 @@ const App: React.FC = () => {
         </button>
       </header>
 
-      <NoteList
-        notes={notes}
-        loading={isFetching}
-        onDelete={handleDeleteNote} 
-      />
+      <NoteList notes={notes} loading={isFetching} />
 
       {isModalOpen && (
         <Modal onClose={handleCloseModal}>
