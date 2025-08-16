@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import { fetchNotes } from "../../services/noteService";
 import type { Note } from "../../types/note";
@@ -22,10 +22,16 @@ const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const perPage = 12;
 
-  const { data: notesData = { notes: [], totalPages: 0 }, isLoading, isError, isFetching } = useQuery<NotesResponse, Error>({
+  const {
+    data: notesData = { notes: [], totalPages: 0 },
+    isLoading,
+    isError,
+    isFetching,
+  } = useQuery<NotesResponse, Error>({
     queryKey: ["notes", currentPage, debouncedSearchQuery],
     queryFn: () =>
       fetchNotes({ page: currentPage, perPage, search: debouncedSearchQuery }),
+    placeholderData: keepPreviousData, 
   });
 
   const handleSearchChange = (query: string) => {
@@ -44,7 +50,11 @@ const App: React.FC = () => {
   }
 
   if (isError) {
-    return <div className={css.error}>Error loading notes. Please try again.</div>;
+    return (
+      <div className={css.error}>
+        Error loading notes. Please try again.
+      </div>
+    );
   }
 
   return (
